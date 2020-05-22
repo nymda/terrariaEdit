@@ -40,45 +40,45 @@ namespace TerrariaEditor
             {
                 decInts.Add(Convert.ToInt32(b));
             }
-            string done = string.Join(",", decInts);
-
-            int count = 0;
-            foreach(int i in decInts)
-            {
-                Console.WriteLine(count + " | " + i + " | " + Encoding.ASCII.GetString(new byte[] { (byte)i }));
-                count++;
-            }
-
-            postNameOffset = findNameEnd();
-            Console.WriteLine(postNameOffset);
-
-            getInvData();
-
-            Console.WriteLine(done);
-            Console.WriteLine(decInts.Count);
         }
 
-        public int findNameEnd()
+        public int findNameOffset()
         {
-            int count = 0;
-            List<int> buffer = new List<int> { };
-            foreach(int i in decInts)
+            //strip unprintable characters. seperate strings with 0x00.
+            byte[] printables = new byte[] { 27, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x5c, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5c, 0x5d, 0x5e, 0x5f, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e };
+            List<Byte> buffer = new List<Byte> { };
+            bool swit = true;
+            foreach (byte b in decData)
             {
-                if(i == 3)
+                if (printables.Contains(b))
                 {
-                    foreach(int e in buffer)
-                    {
-                        Console.WriteLine(Encoding.UTF8.GetString(new byte[] { (byte)e }));
-                    }
-
-                    return count + 1;
+                    buffer.Add(b);
+                    swit = true;
                 }
                 else
                 {
-                    buffer.Add(i);
-                    count++;
+                    if (swit)
+                    {
+                        buffer.Add(0x00);
+                        swit = false;
+                    }
                 }
             }
+
+            string dat = Encoding.UTF8.GetString(buffer.ToArray());
+            string[] rawSplit = dat.Split((char)0x00);
+
+            string terrDataString = Encoding.ASCII.GetString(decData.ToArray());
+
+            foreach (string s in rawSplit)
+            {
+                if (s.Length > 2)
+                {
+                    Console.WriteLine(s);
+                    return terrDataString.IndexOf(s) + s.Length;
+                }
+            }
+
             return -1;
         }
 
@@ -100,6 +100,12 @@ namespace TerrariaEditor
                     extCount++;
                 }
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            postNameOffset = findNameOffset();
+            getInvData();
         }
     }
 }
