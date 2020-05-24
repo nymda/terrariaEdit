@@ -29,6 +29,7 @@ namespace TerrariaEditor
 
         private void button1_Click(object sender, EventArgs e)
         {
+            dataGridView1.Rows.Clear();
             using (OpenFileDialog dlg = new OpenFileDialog())
             {
                 dlg.Title = "Open Input File";
@@ -44,7 +45,7 @@ namespace TerrariaEditor
             setNameData();
             this.Text = "Terraria Editor | " + playerName;
             setInvData();
-            button1.Enabled = false;
+            //button1.Enabled = false;
         }
 
         public void setNameData()
