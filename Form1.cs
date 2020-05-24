@@ -102,6 +102,8 @@ namespace TerrariaEditor
         {
             itemContainer.loadTerrariaItems(this);
             comboBox1.SelectedIndex = 0;
+            dataGridView1.Columns[0].Width = dataGridView1.Width - dataGridView1.Columns[1].Width - 60;
+            dataGridView1.AllowUserToAddRows = false;
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -111,14 +113,21 @@ namespace TerrariaEditor
 
         private void dgv1_cellclick(object sender, DataGridViewCellEventArgs e)
         {
-            comboBox1.SelectedItem = dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Cells[0].Value.ToString();
-            numericUpDown1.Value = Convert.ToInt32(dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Cells[1].Value.ToString());
+            if(dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Cells[0].Value != null)
+            {
+                int id = itemContainer.searchByName(dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Cells[0].Value.ToString()).ID;
+                comboBox1.SelectedItem = dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Cells[0].Value.ToString() + " (" + id + ")";
+                numericUpDown1.Value = Convert.ToInt32(dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Cells[1].Value.ToString());
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             int invindex = dataGridView1.CurrentCell.RowIndex;
-            item newitem = itemContainer.searchByName(comboBox1.SelectedItem.ToString());
+            string procName = comboBox1.SelectedItem.ToString();
+            string[] split = procName.Split(' ');
+            string removedID = string.Join(" ", split.Take(split.Length - 1));
+            item newitem = itemContainer.searchByName(removedID);
             int newQuant = (int)numericUpDown1.Value;
             playerInv[invindex].item = newitem;
             playerInv[invindex].quantity = newQuant;
@@ -170,6 +179,11 @@ namespace TerrariaEditor
             }
             Console.WriteLine(string.Join(",", save));
             return save;
+        }
+
+        private void dgv_resize(object sender, EventArgs e)
+        {
+            dataGridView1.Columns[0].Width = dataGridView1.Width - dataGridView1.Columns[1].Width - 60;
         }
     }
 

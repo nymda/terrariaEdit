@@ -23,7 +23,7 @@ namespace TerrariaEditor
                     return i;
                 }
             }
-            throw new Exception("Invalid id " + id);
+            return new item(0, "Empty", "Empty");
         }
 
         public item searchByName(string name)
@@ -35,7 +35,7 @@ namespace TerrariaEditor
                     return i;
                 }
             }
-            throw new Exception("Invalid name " + name);
+            return new item(0, "Empty", "Empty");
         }
 
         public void loadTerrariaItems(Form1 host)
@@ -56,7 +56,7 @@ namespace TerrariaEditor
                     string[] tmp = s.Split(',');
                     item tmpItem = new item(Int32.Parse(tmp[0]), tmp[1], tmp[2]);
                     globalItems.Add(tmpItem);
-                    host.comboBox1.Items.Add(tmpItem.name);
+                    host.comboBox1.Items.Add(tmpItem.name + " (" + tmpItem.ID + ")");
                 }
                 catch
                 {
