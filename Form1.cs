@@ -20,6 +20,8 @@ namespace TerrariaEditor
         public List<inventoryChunk> playerInv = new List<inventoryChunk> { };
         public string playerName = "";
         public int nameEndOffset = 0;
+        terrariaItems itemContainer = new terrariaItems();
+        public crypto cryptoHander = new crypto();
         public Form1()
         {
             InitializeComponent();
@@ -34,19 +36,23 @@ namespace TerrariaEditor
 
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    decrypted = Decrypt(File.ReadAllBytes(dlg.FileName)).ToList();
+                    FileInfo fi = new FileInfo(dlg.FileName);
+                    decrypted = cryptoHander.decryptNew(File.ReadAllBytes(dlg.FileName), (int)fi.Length).ToList();
                 }
             }
-
+            Console.WriteLine(string.Join(",", decrypted));
+            groupBox1.Enabled = true;
             setNameData();
             Console.WriteLine(playerName);
+            this.Text = "Terraria Editer | " + playerName;
             Console.WriteLine(nameEndOffset);
             setInvData();
+            button1.Enabled = false;
         }
 
         public void setNameData()
         {
-            byte[] printables = new byte[] { 27, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x5c, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5c, 0x5d, 0x5e, 0x5f, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e };
+            byte[] printables = new byte[] { 0x27, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x5c, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5c, 0x5d, 0x5e, 0x5f, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e };
             int startpos = 25;
 
             StringBuilder nameBuild = new StringBuilder();
@@ -80,7 +86,7 @@ namespace TerrariaEditor
                 tmp.Add(decrypted[i]);
                 if (extCounter == 10)
                 {
-                    inventoryChunk iv = new inventoryChunk(tmp);
+                    inventoryChunk iv = new inventoryChunk(tmp, itemContainer);
                     playerInv.Add(iv);
                     tmp = new List<int> { };
                     extCounter = 0;
@@ -88,27 +94,82 @@ namespace TerrariaEditor
             }
             foreach (inventoryChunk iv in playerInv)
             {
-                Console.WriteLine(iv.getPrintable());
+                dataGridView1.Rows.Add(iv.item.name, iv.quantity);
             }
         }
 
-        public byte[] Decrypt(byte[] cipherText)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            using (Rijndael rijndaelHandle = Rijndael.Create())
+            itemContainer.loadTerrariaItems(this);
+            comboBox1.SelectedIndex = 0;
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dgv1_cellclick(object sender, DataGridViewCellEventArgs e)
+        {
+            comboBox1.SelectedItem = dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Cells[0].Value.ToString();
+            numericUpDown1.Value = Convert.ToInt32(dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex].Cells[1].Value.ToString());
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            int invindex = dataGridView1.CurrentCell.RowIndex;
+            item newitem = itemContainer.searchByName(comboBox1.SelectedItem.ToString());
+            int newQuant = (int)numericUpDown1.Value;
+            playerInv[invindex].item = newitem;
+            playerInv[invindex].quantity = newQuant;
+            dataGridView1.Rows.Clear();
+            foreach (inventoryChunk iv in playerInv)
             {
-                rijndaelHandle.Padding = PaddingMode.None;
-                rijndaelHandle.Key = new UnicodeEncoding().GetBytes(EncryptionKey);
-                using (MemoryStream ms = new MemoryStream())
+                dataGridView1.Rows.Add(iv.item.name, iv.quantity);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            List<Byte> output = reEncode();
+            using (SaveFileDialog dlg = new SaveFileDialog())
+            {
+                dlg.Title = "Save player file";
+                dlg.Filter = "Terraria player | *.plr";
+
+                if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, rijndaelHandle.CreateDecryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(cipherText, 0, cipherText.Length);
-                        cs.Close();
-                    }
-                    cipherText = ms.ToArray();
+                    string savepath = dlg.FileName;
+                    cryptoHander.encryptAndSave(output.ToArray(), savepath);
                 }
             }
-            return cipherText;
+            Console.WriteLine(string.Join(",", output));
+        }
+
+        public List<Byte> reEncode()
+        {
+            List<Byte> buffer = new List<Byte> { };
+            List<Byte> save = decrypted;
+            Console.WriteLine(string.Join(",", save));
+            foreach (inventoryChunk iv in playerInv)
+            {
+                List<Byte> tmp = iv.encode();
+                foreach(byte b in tmp)
+                {
+                    buffer.Add(b);
+                }
+            }
+            int dataBeginOffset = nameEndOffset + 211;
+            int dataEndOffset = dataBeginOffset + 500;
+            int extCount = 0;
+
+            for (int i = dataBeginOffset; i < dataEndOffset; i++)
+            {
+                save[i] = buffer[extCount];
+                extCount++;
+            }
+            Console.WriteLine(string.Join(",", save));
+            return save;
         }
     }
 

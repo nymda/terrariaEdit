@@ -8,51 +8,37 @@ using System.Threading.Tasks;
 
 namespace TerrariaEditor
 {
-    class crypto
+    public class crypto
     {
         private const string EncryptionKey = "h3y_gUyZ";
-        public string name = "";
-        public List<Byte> getRawData(string playerPath)
-        {
-            byte[] encrypted = File.ReadAllBytes(playerPath);
-            byte[] decrypted = Decrypt(encrypted);
-            return decrypted.ToList();
-        }
+        public FileInfo fi;
 
-        public static byte[] Decrypt(byte[] cipherText)
+        //fuck crypto lol
+
+        public byte[] decryptNew(byte[] encrypted, int length)
         {
-            using (Rijndael rijndaelHandle = Rijndael.Create())
+            using (var rijndaelManaged = new RijndaelManaged { Padding = PaddingMode.None })
+            using (var memoryStream = new MemoryStream(encrypted))
             {
-                rijndaelHandle.Padding = PaddingMode.None;
-                rijndaelHandle.Key = new UnicodeEncoding().GetBytes(EncryptionKey);
-                using (MemoryStream ms = new MemoryStream())
+                var bytes = new UnicodeEncoding().GetBytes(EncryptionKey);
+                using (var cryptoStream = new CryptoStream(memoryStream, rijndaelManaged.CreateDecryptor(bytes, bytes), CryptoStreamMode.Read))
+                using (var reader = new BinaryReader(cryptoStream))
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, rijndaelHandle.CreateDecryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(cipherText, 0, cipherText.Length);
-                        cs.Close();                   
-                    }
-                    cipherText = ms.ToArray();
+                    return reader.ReadBytes(length);
                 }
             }
-            return cipherText;
         }
-
         public void encryptAndSave(byte[] decryptedData, string path)
         {
             byte[] encrypted;
-            using (Rijndael rijndaelHandle = Rijndael.Create())
+            using (var rijndaelManaged = new RijndaelManaged { Padding = PaddingMode.None })
+            using (var memoryStream = new MemoryStream(decryptedData))
             {
-                rijndaelHandle.Padding = PaddingMode.None;
-                rijndaelHandle.Key = new UnicodeEncoding().GetBytes(EncryptionKey);
-                using (MemoryStream ms = new MemoryStream())
+                var bytes = new UnicodeEncoding().GetBytes(EncryptionKey);
+                using (var cryptoStream = new CryptoStream(memoryStream, rijndaelManaged.CreateEncryptor(bytes, bytes), CryptoStreamMode.Read))
+                using (var reader = new BinaryReader(cryptoStream))
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, rijndaelHandle.CreateEncryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(decryptedData, 0, decryptedData.Length);
-                        cs.Close();
-                    }
-                    encrypted = ms.ToArray();
+                    encrypted = reader.ReadBytes(decryptedData.Length);
                 }
             }
             File.WriteAllBytes(path, encrypted);

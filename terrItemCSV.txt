@@ -1,4 +1,5 @@
-﻿1,Iron Pickaxe,IronPickaxe
+﻿0,Empty,Empty
+1,Iron Pickaxe,IronPickaxe
 2,Dirt Block,DirtBlock
 3,Stone Block,StoneBlock
 4,Iron Broadsword,IronBroadsword
@@ -5028,5 +5029,5 @@
 5038,Otherworldly Music Box (Jungle),MusicBoxOWJungle
 5039,Otherworldly Music Box (Wall of Flesh),MusicBoxOWWallOfFlesh
 5040,Otherworldly Music Box (Hallow),MusicBoxOWHallow
-5041,Carton of Milk
-5042,Coffee
+5041,Carton of Milk,MilkCarton
+5042,Coffee,Coffee

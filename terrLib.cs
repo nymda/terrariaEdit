@@ -8,7 +8,6 @@ namespace TerrariaEditor
 {
     class terrLib
     {
-        public List<invItem> inventory = new List<invItem> { };
         public void getItems(string decData)
         {
 
