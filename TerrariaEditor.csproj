@@ -71,8 +71,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="terrariaItems.cs" />
-    <Compile Include="terrLib.cs" />
-    <Compile Include="types.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

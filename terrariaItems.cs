@@ -76,9 +76,7 @@ namespace TerrariaEditor
         {
             this.itemDirectory = itemDirectory;
             decode(data);
-
         }
-
         public void decode(List<int> encoded)
         {
             int id = resolveEncodedData(encoded[0], encoded[1]);
@@ -93,7 +91,6 @@ namespace TerrariaEditor
             ID += 256 * b2;
             return ID;
         }
-
         public List<int> encodeData(int inp)
         {
             int count256 = 0;
@@ -104,7 +101,6 @@ namespace TerrariaEditor
             }
             return new List<int> { inp, count256 };
         }
-
         public List<Byte> encode()
         {
             List<Byte> final = new List<Byte> {  };
@@ -123,7 +119,6 @@ namespace TerrariaEditor
             final.Add(0x00);
             return final;
         }
-
     }
     public class item
     {

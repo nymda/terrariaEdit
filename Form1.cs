@@ -40,12 +40,9 @@ namespace TerrariaEditor
                     decrypted = cryptoHander.decryptNew(File.ReadAllBytes(dlg.FileName), (int)fi.Length).ToList();
                 }
             }
-            Console.WriteLine(string.Join(",", decrypted));
             groupBox1.Enabled = true;
             setNameData();
-            Console.WriteLine(playerName);
-            this.Text = "Terraria Editer | " + playerName;
-            Console.WriteLine(nameEndOffset);
+            this.Text = "Terraria Editor | " + playerName;
             setInvData();
             button1.Enabled = false;
         }
@@ -152,14 +149,12 @@ namespace TerrariaEditor
                     cryptoHander.encryptAndSave(output.ToArray(), savepath);
                 }
             }
-            Console.WriteLine(string.Join(",", output));
         }
 
         public List<Byte> reEncode()
         {
             List<Byte> buffer = new List<Byte> { };
             List<Byte> save = decrypted;
-            Console.WriteLine(string.Join(",", save));
             foreach (inventoryChunk iv in playerInv)
             {
                 List<Byte> tmp = iv.encode();
@@ -177,7 +172,6 @@ namespace TerrariaEditor
                 save[i] = buffer[extCount];
                 extCount++;
             }
-            Console.WriteLine(string.Join(",", save));
             return save;
         }
 
